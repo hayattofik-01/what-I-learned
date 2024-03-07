@@ -1,8 +1,7 @@
 
 import asyncio
 import json
-from telegram import Updater, CommandHandler, MessageHandler, Filters
-
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from collections import defaultdict
 from telegram.ext import JobQueue
 from datetime import time
