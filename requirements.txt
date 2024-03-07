@@ -1,0 +1,4 @@
+asyncio
+json
+python-telegram-bot
+requests
