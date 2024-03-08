@@ -90,7 +90,7 @@ def start(update, context):
     update.message.reply_text(menu, parse_mode="Markdown")
 
 # Telegram bot token
-TOKEN = "7164302604:AAHosttl9QzdpC4Dp0ZhMAGxjLqL1kxLhgo"
+TOKEN = "7058006329:AAGdXBIek_FaxBZ7gBwxaAVjFreD-c_9Iac"
 
 # Create an Updater and pass it your bot's token
 updater = Updater(token=TOKEN, use_context=True)
