@@ -1,7 +1,6 @@
 
 import asyncio
 import json
-from nt import environ
 import os
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from collections import defaultdict
