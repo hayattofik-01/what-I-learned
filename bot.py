@@ -1,6 +1,7 @@
 
 import asyncio
 import json
+from nt import environ
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from collections import defaultdict
 from datetime import time
@@ -90,10 +91,10 @@ def start(update, context):
     update.message.reply_text(menu, parse_mode="Markdown")
 
 # Telegram bot token
-TOKEN = "7058006329:AAGdXBIek_FaxBZ7gBwxaAVjFreD-c_9Iac"
+
 
 # Create an Updater and pass it your bot's token
-updater = Updater(token=TOKEN, use_context=True)
+updater = Updater(token= environ.TOKEN, use_context=True)
 dispatcher = updater.dispatcher
 
 # Register the command handlers
