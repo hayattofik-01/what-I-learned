@@ -84,7 +84,7 @@ def start(update, context):
     update.message.reply_text("As-salamu alaykum! 🌟 Welcome to our Quran learning bot. Here are the available commands:")
     # Display the available commands as a menu
     menu = "📚 *Available Commands:*\n"
-    menu += "/quran aya - Get a random Quran verse\n"
+    menu += "/quranaya - Get a random Quran verse\n"
     menu += "/leaderboard - View the leaderboard\n"
   
     update.message.reply_text(menu, parse_mode="Markdown")
@@ -97,7 +97,7 @@ updater = Updater(token=TOKEN, use_context=True)
 dispatcher = updater.dispatcher
 
 # Register the command handlers
-dispatcher.add_handler(CommandHandler("quran aya", quran_sura))
+dispatcher.add_handler(CommandHandler("quranaya", quran_sura))
 dispatcher.add_handler(CommandHandler("leaderboard", leaderboard))
 
 dispatcher.add_handler(CommandHandler("start", start))
