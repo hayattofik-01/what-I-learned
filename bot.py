@@ -3,7 +3,6 @@ import asyncio
 import json
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from collections import defaultdict
-from telegram.ext import JobQueue
 from datetime import time
 import requests
 
@@ -32,8 +31,6 @@ def handle_message(update, context):
         user_message_counts[user_id] += 1
 
 # Function to fetch a random sura from the Quran API
-
-# Function to fetch a random sura from the Quran API
 async def get_random_sura():
     url = "https://api.quran.com/api/v4/verses/random"
     response = await asyncio.to_thread(requests.get, url)
@@ -58,7 +55,6 @@ async def get_random_sura():
     else:
         return "Failed to fetch sura. Please try again later."
 
-
 # Define a command handler for the Quran sura command
 def quran_sura(update, context):
     async def async_quran_sura():
@@ -68,7 +64,6 @@ def quran_sura(update, context):
     asyncio.run(async_quran_sura())
 
 # Define a function to send the reminder message
-# Function to send the reminder message
 def send_reminder(context):
     chat_id = "-1001913947795"  # Replace with your group's chat ID
     reminder_message = (
