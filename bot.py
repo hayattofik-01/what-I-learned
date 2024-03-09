@@ -12,7 +12,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Dispa
 app = Flask(__name__)
 
 # Telegram bot token
-TOKEN = os.environ("TOKEN")
+TOKEN = os.environ.get('TOKEN')
 
 # Initialize the bot and dispatcher
 bot = Bot(token=TOKEN)
