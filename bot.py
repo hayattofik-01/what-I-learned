@@ -117,7 +117,7 @@ def webhook():
 
 if __name__ == "__main__":
     # Start the webhook
-    PORT = int(6745)
+    PORT = int(1937)
     HOOK_URL = 'https://what-i-learned.onrender.com' + '/' + TOKEN
     updater = Updater(token=TOKEN)
     updater.start_webhook(listen='0.0.0.0', port=PORT, url_path=TOKEN, webhook_url=HOOK_URL)
