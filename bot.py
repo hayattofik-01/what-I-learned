@@ -1,18 +1,20 @@
+import asyncio
+from collections import defaultdict
 import json
 import os
-from sched import scheduler
-from flask import Flask, request, jsonify
-from telegram import Update, Bot
-from telegram.ext import Dispatcher, CommandHandler, MessageHandler, Filters
-from collections import defaultdict
-from datetime import time
+import time
+from flask import Flask, request
 import requests
+from telegram import Update, Bot
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Dispatcher
 
 # Initialize Flask app
 app = Flask(__name__)
 
-# Initialize Telegram bot
-TOKEN = os.environ.get('TOKEN')
+# Telegram bot token
+TOKEN = os.environ("TOKEN")
+
+# Initialize the bot and dispatcher
 bot = Bot(token=TOKEN)
 dispatcher = Dispatcher(bot, None, workers=0)
 
@@ -24,7 +26,7 @@ def leaderboard(update, context):
     leaderboard_info = "🏆 Leaderboard 🏆\n\n"
     sorted_user_message_counts = sorted(user_message_counts.items(), key=lambda x: x[1], reverse=True)
     for i, (user_id, count) in enumerate(sorted_user_message_counts, start=1):
-        user = bot.get_chat_member(update.message.chat_id, user_id).user
+        user = context.bot.get_chat_member(update.message.chat_id, user_id).user
         username = user.username if user.username else user.first_name
         leaderboard_info += f"👤 {username}: {count}\n"
         if i % 5 == 0:
@@ -39,13 +41,12 @@ def handle_message(update, context):
     # Check if the message starts with "what I learned today"
     if message.startswith("what I learned today"):
         user_message_counts[user_id] += 1
-
 # Function to fetch a random sura from the Quran API
-def get_random_sura():
+async def get_random_sura():
     url = "https://api.quran.com/api/v4/verses/random"
-    response = requests.get(url)
+    response = await asyncio.to_thread(requests.get, url)
     if response.status_code == 200:
-        data = response.json()
+        data = json.loads(response.content.decode("utf-8"))
         verse_info = data.get("verse", {})
         verse_key = verse_info.get("verse_key", "")
         page_number = verse_info.get("page_number", "")
@@ -67,11 +68,14 @@ def get_random_sura():
 
 # Define a command handler for the Quran sura command
 def quran_sura(update, context):
-    sura_info = get_random_sura()
-    update.message.reply_text(sura_info)
+    async def async_quran_sura():
+        sura_info = await get_random_sura()
+        update.message.reply_text(sura_info)
 
-# Define a function to send the reminder message
-def send_reminder():
+    asyncio.run(async_quran_sura())
+
+# Function to send the reminder message
+def send_reminder(context):
     chat_id = "-1001913947795"  # Replace with your group's chat ID
     reminder_message = (
         "🕌 *Islamic Reminder* 🕌\n\n"
@@ -79,24 +83,42 @@ def send_reminder():
         "📌 *Reminder:* Don't forget to reflect on what you learned today!\n"
         "May Allah bless your efforts in seeking knowledge and understanding. 🙏"
     )  
-    bot.send_message(chat_id=chat_id, text=reminder_message, parse_mode="MarkdownV2")
+    context.bot.send_message(chat_id=chat_id, text=reminder_message, parse_mode="MarkdownV2")
 
 # Function to start the reminder job
 def start_reminder_job():
     # Schedule the daily reminder job at 9:00 AM local time
-    scheduler.every().day.at("09:00").do(send_reminder)
+    Updater.job_queue.run_daily(send_reminder, time(hour=1, minute=2, second=0))
 
-@app.route(f'/{TOKEN}', methods=['POST'])
-def webhook():
-    json_data = request.get_json()
-    update = Update.de_json(json_data, bot)
-    dispatcher.process_update(update)
-    return jsonify({'status': 'ok'})
+def start(update, context):
+    # Send As-salamu alaykum message
+    update.message.reply_text("As-salamu alaykum! 🌟 Welcome to our Quran learning bot. Here are the available commands:")
+    # Display the available commands as a menu
+    menu = "📚 *Available Commands:*\n"
+    menu += "/quranaya - Get a random Quran verse\n"
+    menu += "/leaderboard - View the leaderboard\n"
+  
+    update.message.reply_text(menu, parse_mode="Markdown")
 
 # Register the command handlers
 dispatcher.add_handler(CommandHandler("quranaya", quran_sura))
 dispatcher.add_handler(CommandHandler("leaderboard", leaderboard))
+dispatcher.add_handler(CommandHandler("start", start))
 
-# Start the Flask server
+# Register the message handler
+dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), handle_message))
+
+# Endpoint to receive updates from Telegram
+@app.route(f'/{TOKEN}', methods=['POST'])
+def webhook():
+    update = Update.de_json(request.get_json(force=True), bot)
+    dispatcher.process_update(update)
+    return 'ok'
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Start the webhook
+    PORT = int(os.environ.get('PORT', '443'))
+    HOOK_URL = 'https://what-i-learned.onrender.com' + '/' + TOKEN
+    updater = Updater(token=TOKEN)
+    updater.start_webhook(listen='0.0.0.0', port=PORT, url_path=TOKEN, webhook_url=HOOK_URL)
+    app.run(host="0.0.0.0", port=PORT)
