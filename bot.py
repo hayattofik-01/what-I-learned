@@ -121,4 +121,5 @@ if __name__ == "__main__":
     HOOK_URL = 'https://what-i-learned.onrender.com' + '/' + TOKEN
     updater = Updater(token=TOKEN)
     updater.start_webhook(listen='0.0.0.0', port=PORT, url_path=TOKEN, webhook_url=HOOK_URL)
+    updater.bot.set_webhook(HOOK_URL) 
     app.run(host="0.0.0.0", port=PORT)
